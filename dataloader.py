@@ -1,7 +1,11 @@
 # +
 import pydicom
+import torch
+from torch.utils import data
+import torchvision
 from torchvision import transforms
 import numpy as np
+import os
 
 class DCMDatasetLoader(data.Dataset):
     def __init__(self, root):
@@ -20,7 +24,7 @@ class DCMDatasetLoader(data.Dataset):
         
         self.trans = transforms.Compose([
                         transforms.ToTensor(),
-                        #transforms.Normalize(mean=[128], std=[128])
+                        transforms.Normalize(mean=[128], std=[128])
                     ])
 
     def __len__(self):
@@ -28,7 +32,7 @@ class DCMDatasetLoader(data.Dataset):
     
     def __getitem__(self, idx):
         img = pydicom.dcmread(os.path.join(self.root, self.labels[idx],self.img_names[idx]))
-        img = img.pixel_array.astype(np.float32)
+        img = img.pixel_array.astype(np.float32).reshape((512,512))
         img = self.trans(img)
         
         return img, self.class_to_idx[self.labels[idx]]
@@ -50,4 +54,5 @@ class DCMDatasetLoader(data.Dataset):
         classes.sort()
         class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
         return classes, class_to_idx
+
 

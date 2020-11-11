@@ -11,7 +11,8 @@ class DCMDatasetLoader(data.Dataset):
     def __init__(self, root):
         self.root = root
         self.classes, self.class_to_idx = self._find_classes(self.root)
-        
+
+        print(self.classes)
         self.img_names = []
         self.labels = []
         for c in self.classes:
@@ -24,6 +25,7 @@ class DCMDatasetLoader(data.Dataset):
         
         self.trans = transforms.Compose([
                         transforms.ToTensor(),
+                        transforms.Resize((512,512)),
                         transforms.Normalize(mean=[128], std=[128])
                     ])
 
@@ -32,7 +34,7 @@ class DCMDatasetLoader(data.Dataset):
     
     def __getitem__(self, idx):
         img = pydicom.dcmread(os.path.join(self.root, self.labels[idx],self.img_names[idx]))
-        img = img.pixel_array.astype(np.float32).reshape((512,512))
+        img = img.pixel_array.astype(np.float32)
         img = self.trans(img)
         
         return img, self.class_to_idx[self.labels[idx]]
@@ -54,5 +56,4 @@ class DCMDatasetLoader(data.Dataset):
         classes.sort()
         class_to_idx = {cls_name: i for i, cls_name in enumerate(classes)}
         return classes, class_to_idx
-
 

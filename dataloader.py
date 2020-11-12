@@ -7,6 +7,7 @@ from torchvision import transforms
 import numpy as np
 import os
 import PIL
+import matplotlib.pyplot as plt
 
 class DCMDatasetLoader(data.Dataset):
     def __init__(self, root):
@@ -133,7 +134,7 @@ class DCMDatasetLoader_3windows(data.Dataset):
                         data[('0028','1051')].value, #window width
                         data[('0028','1052')].value, #intercept
                         data[('0028','1053')].value] #slope
-        return [get_first_of_dicom_field_as_int(x) for x in dicom_fields]
+        return [self.get_first_of_dicom_field_as_int(x) for x in dicom_fields]
     
     def window_image(self, img, window_center,window_width, intercept, slope):
 
@@ -147,5 +148,3 @@ class DCMDatasetLoader_3windows(data.Dataset):
     def normalize_minmax(self, img):
         mi, ma = img.min(), img.max()
         return (img - mi) / (ma - mi)
-
-

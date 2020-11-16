@@ -67,7 +67,6 @@ class DCMDatasetLoader_3windows(data.Dataset):
         self.root = root
         self.get_meta = get_meta
         self.classes, self.class_to_idx = self._find_classes(self.root)
-        print(class_to_idx)
 
         self.img_names = []
         self.labels = []

@@ -106,9 +106,9 @@ class DCMDatasetLoader_3windows(data.Dataset):
         
         if self.get_meta:
             meta_data = torch.Tensor([float(origin_img[('0020', '0032')].value[2])])
-            img = (img, meta_data)
-            
-        return img, self.class_to_idx[self.labels[idx]]
+            return img, meta_data, self.class_to_idx[self.labels[idx]]
+        else:  
+            return img, self.class_to_idx[self.labels[idx]]
     
     def _find_classes(self, dir: str):
         """
@@ -190,9 +190,9 @@ class DCMDatasetLoader_3windows_test(data.Dataset):
                 
         if self.get_meta:
             meta_data = torch.Tensor([float(origin_img[('0020', '0032')].value[2])])
-            img = (img, meta_data)
-        
-        return img
+            return img, meta_data, self.class_to_idx[self.labels[idx]]
+        else:  
+            return img, self.class_to_idx[self.labels[idx]]
     
     def get_first_of_dicom_field_as_int(self, x):
         #get x[0] as in int is x is a 'pydicom.multival.MultiValue', otherwise get int(x)

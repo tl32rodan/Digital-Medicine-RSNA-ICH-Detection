@@ -63,9 +63,11 @@ class DCMDatasetLoader(data.Dataset):
 # -
 
 class DCMDatasetLoader_3windows(data.Dataset):
-    def __init__(self, root):
+    def __init__(self, root, get_meta = False):
         self.root = root
+        self.get_meta = get_meta
         self.classes, self.class_to_idx = self._find_classes(self.root)
+        print(class_to_idx)
 
         self.img_names = []
         self.labels = []
@@ -88,6 +90,7 @@ class DCMDatasetLoader_3windows(data.Dataset):
     
     def __getitem__(self, idx):
         origin_img = pydicom.dcmread(os.path.join(self.root, self.labels[idx],self.img_names[idx]))
+        
         img = origin_img.pixel_array
         window_center , window_width, intercept, slope = self.get_windowing(origin_img)
 
@@ -101,6 +104,11 @@ class DCMDatasetLoader_3windows(data.Dataset):
         
         img = self.trans(img.transpose(1,2,0))    
         
+        
+        if self.get_meta:
+            meta_data = torch.Tensor([float(origin_img[('0020', '0032')].value[2])])
+            img = (img, meta_data)
+            
         return img, self.class_to_idx[self.labels[idx]]
     
     def _find_classes(self, dir: str):
@@ -152,7 +160,7 @@ class DCMDatasetLoader_3windows_test(data.Dataset):
     def __init__(self, root):
         self.root = root
 
-        self.img_names = os.listdir(root)
+        self.img_names = os.listdir(root, get_meta = False)
         
         print("> Found %d images..." % (len(self.img_names)))
         
@@ -178,7 +186,12 @@ class DCMDatasetLoader_3windows_test(data.Dataset):
         img_3_windows.append(self.window_image(img, 600, 2800, intercept, slope)) # Bone window (600, 2800)
         img = np.array(img_3_windows, dtype=np.float32)
         
-        img = self.trans(img.transpose(1,2,0))    
+        img = self.trans(img.transpose(1,2,0))
+        
+                
+        if self.get_meta:
+            meta_data = torch.Tensor([float(origin_img[('0020', '0032')].value[2])])
+            img = (img, meta_data)
         
         return img
     
